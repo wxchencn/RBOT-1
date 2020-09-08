@@ -37,6 +37,10 @@
 #include <QThread>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+
 
 #include "object3d.h"
 #include "pose_estimator6d.h"
@@ -50,7 +54,7 @@ cv::Mat drawResultOverlay(const vector<Object3D*>& objects, const cv::Mat& frame
     RenderingEngine::Instance()->setLevel(0);
     
     vector<Point3f> colors;
-    colors.push_back(Point3f(1.0, 0.5, 0.0));
+    colors.push_back(Point3f(0.3, 0.3, 0.3));
     //colors.push_back(Point3f(0.2, 0.3, 1.0));
     RenderingEngine::Instance()->renderShaded(vector<Model*>(objects.begin(), objects.end()), GL_FILL, colors, true);
     
@@ -83,25 +87,34 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     // camera image size
+    // int width = 640;
+    // int height = 512;
     int width = 640;
-    int height = 512;
+    int height = 480;
     
     // near and far plane of the OpenGL view frustum
     float zNear = 10.0;
     float zFar = 10000.0;
     
     // camera instrinsics
-    Matx33f K = Matx33f(650.048, 0, 324.328, 0, 647.183, 257.323, 0, 0, 1);
-    Matx14f distCoeffs =  Matx14f(0.0, 0.0, 0.0, 0.0);
-    
+    //Matx33f K = Matx33f(650.048, 0, 324.328, 0, 647.183, 257.323, 0, 0, 1);
+    Matx33f K = Matx33f(858.206, 0, 332.067, 0, 851.511, 201.884, 0, 0, 1);
+    Matx14f distCoeffs =  Matx14f(0.056, 0.188, -0.004, 0.002);
+    //0.056593 0.188226 -0.003512 0.001932
     // distances for the pose detection template generation
     vector<float> distances = {200.0f, 400.0f, 600.0f};
-    
+    //vector<float> distances2 = {200.0f, 400.0f, 600.0f};
+
     // load 3D objects
     vector<Object3D*> objects;
-    objects.push_back(new Object3D("data/squirrel_demo_low.obj", 15, -35, 515, 55, -20, 205, 1.0, 0.55f, distances));
-    //objects.push_back(new Object3D("data/a_second_model.obj", -50, 0, 600, 30, 0, 180, 1.0, 0.55f, distances2));
-    
+    /**
+        my_video-1.mkv >> 50, 10, 450, 0, 0, 0, 1.0, 0.5f
+     */
+    //objects.push_back(new Object3D("data/squirrel_demo_low.obj", 15, -35, 515, 55, -20, 205, 1.0, 0.55f, distances));
+    //objects.push_back(new Object3D("data/squirrel_small.obj", -50, 0, 600, 30, 0, 180, 1.0, 0.55f, distances2));
+    objects.push_back(new Object3D("data/cat.ply", 50, 10, 450, 0, 0, 0, 1.0, 0.5f, distances));  
+    //objects.push_back(new Object3D("data/cat.ply", 19, 4.08, 549, 0, 2, 3, 1.0, 0.55f, distances));
+
     // create the pose estimator
     PoseEstimator6D* poseEstimator = new PoseEstimator6D(width, height, zNear, zFar, K, distCoeffs, objects);
     
@@ -116,11 +129,18 @@ int main(int argc, char *argv[])
     bool showHelp = true;
     
     Mat frame;
+    VideoCapture cap("/home/wxchen/datasets/RBOT_dataset/1.avi");
+    // vector<String> fn;
+    // String path = "data/frames/*.png";
+    // glob(path, fn, false);
+    // int i = 0;
     while(true)
     {
+        cap >> frame;
         // obtain an input image
-        frame = imread("data/frame.png");
-        
+        //frame = imread("data/frame.png");
+        // frame = imread(fn[i]);
+        // i++;
         // the main pose uodate call
         poseEstimator->estimatePoses(frame, false, true);
         
@@ -166,6 +186,8 @@ int main(int argc, char *argv[])
     // clean up
     RenderingEngine::Instance()->destroy();
     
+    cap.release();
+
     for(int i = 0; i < objects.size(); i++)
     {
         delete objects[i];
