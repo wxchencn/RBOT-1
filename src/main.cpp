@@ -109,10 +109,12 @@ int main(int argc, char *argv[])
     vector<Object3D*> objects;
     /**
         my_video-1.mkv >> 50, 10, 450, 0, 0, 0, 1.0, 0.5f
+           cat1.avi    >> 0, -10, 500, 50, 0, 0, 1.0, 0.5f
+        (Y Z X)
      */
     //objects.push_back(new Object3D("data/squirrel_demo_low.obj", 15, -35, 515, 55, -20, 205, 1.0, 0.55f, distances));
     //objects.push_back(new Object3D("data/squirrel_small.obj", -50, 0, 600, 30, 0, 180, 1.0, 0.55f, distances2));
-    objects.push_back(new Object3D("data/cat.ply", 50, 10, 450, 0, 0, 0, 1.0, 0.5f, distances));  
+    objects.push_back(new Object3D("data/cat.ply", 40, 40, 800, -60, 10, 60, 1.0, 0.5f, distances));  
     //objects.push_back(new Object3D("data/cat.ply", 19, 4.08, 549, 0, 2, 3, 1.0, 0.55f, distances));
 
     // create the pose estimator
@@ -129,7 +131,7 @@ int main(int argc, char *argv[])
     bool showHelp = true;
     
     Mat frame;
-    VideoCapture cap("/home/wxchen/datasets/RBOT_dataset/1.avi");
+    VideoCapture cap("/home/wxchen/datasets/RBOT_dataset/cat2.avi");
     // vector<String> fn;
     // String path = "data/frames/*.png";
     // glob(path, fn, false);
